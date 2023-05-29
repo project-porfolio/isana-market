@@ -7,9 +7,40 @@ import {
   TouchableOpacity,
   ToastAndroid,
 } from 'react-native';
-import React from 'react';
+import React, {useState} from 'react';
+import marketAPI from '../../api/marketAPI';
 
 const Register = ({navigation}) => {
+  const [data, setData] = useState({
+    username: '',
+    nama: '',
+    password: '',
+  });
+
+  const handleRegister = async () => {
+    if (!data.nama || !data.password || !data.username) {
+      ToastAndroid.show('Data tidak boleh kosong', ToastAndroid.SHORT);
+      return;
+    }
+
+    try {
+      const res = await marketAPI.post('users', {
+        username: data.username,
+        fullname: data.nama,
+        password: data.password,
+      });
+
+      if (res.data.statusCode === 200) {
+        ToastAndroid.show(res.data.message, ToastAndroid.SHORT);
+        navigation.navigate('Login');
+      } else if (res.data.statusCode === 403) {
+        ToastAndroid.show('Username sudah digunakan', ToastAndroid.SHORT);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Image
@@ -29,28 +60,33 @@ const Register = ({navigation}) => {
       <View>
         <TextInput
           style={styles.input}
-          placeholder="Nip"
+          placeholder="Username"
           placeholderTextColor="white"
+          onChangeText={e => setData({...data, username: e})}
         />
         <TextInput
           style={styles.input}
           placeholder="Nama"
           placeholderTextColor="white"
+          onChangeText={e => setData({...data, nama: e})}
         />
         <TextInput
           style={styles.input}
           placeholder="Password"
           placeholderTextColor="white"
           secureTextEntry={true}
+          onChangeText={e => setData({...data, password: e})}
         />
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={async () => await handleRegister()}>
           <Text style={styles.textButton}>Register</Text>
         </TouchableOpacity>
         <Text style={styles.text}>
           Don't have an account?
           <Text
             style={{fontWeight: 'bold'}}
-            onPress={() => navigation.replace('Login')}>
+            onPress={() => navigation.navigate('Login')}>
             Sign Up
           </Text>
         </Text>
