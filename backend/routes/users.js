@@ -4,6 +4,8 @@ const ModelUser = require("../models/users");
 const bycrypt = require("bcrypt");
 const passwordCheck = require("../utils/passwordCheck");
 const response = require("../utils/response");
+const Upload = require("../controller");
+
 
 //endpoint utama Method Get / Read Data
 router.get("/:username", async (req, res) => {
@@ -113,5 +115,7 @@ router.delete("/", async (req, res) => {
     response.error({ error: err.message }, req.originalUrl, 403, res);
   }
 });
+
+router.post("/upload", Upload);
 
 module.exports = router;
